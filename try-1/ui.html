@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Drone Delivery Routes</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+</head>
+<body>
+    <h1>Drone Delivery Routes</h1>
+    <div id="map" style="height: 600px;"></div>
+    <script>
+        var map = L.map('map').setView([45.5236, -122.6750], 13);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+        }).addTo(map);
+
+        function updateRoute() {
+            fetch('/get_route?start=start_node_id&end=end_node_id')
+                .then(response => response.json())
+                .then(data => {
+                    var path = data.path;
+                    var latlngs = path.map(node => [node.lat, node.lon]);
+                    L.polyline(latlngs, {color: 'blue'}).addTo(map);
+                });
+        }
+
+        // Call updateRoute periodically
+        setInterval(updateRoute, 2000);
+    </script>
+</body>
+</html>
