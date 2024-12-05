@@ -1,3 +1,7 @@
+import six
+import sys
+sys.modules['kafka.vendor.six.moves'] = six.moves
+
 from kafka import KafkaProducer
 import json
 import time
