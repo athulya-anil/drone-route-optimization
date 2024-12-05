@@ -36,11 +36,12 @@ def fetch_weather_data():
     selection = random.randint(1,7)
     weather_response = response.json()['data'][str(selection)]
 
-    return weather_data
+    return weather_response
 
 while True:
     traffic_data = fetch_traffic_data()
     weather_data = fetch_weather_data()
     producer.send('traffic_topic', traffic_data)
     producer.send('weather_topic', weather_data)
+    print("Sending traffic and weather data")
     time.sleep(2)

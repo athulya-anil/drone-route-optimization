@@ -1,14 +1,21 @@
 import networkx as nx
 import heapq
+from pyspark.sql import SparkSession
 
 class AStarGraph:
     def __init__(self):
+        # Create a SparkSession
+        self.spark = SparkSession.builder \
+            .appName("AStarGraph") \
+            .getOrCreate()
+
         self.graph = nx.DiGraph()
         self.load_graph()
 
     def load_graph(self):
-        vertices = spark.read.parquet("vertices.parquet").collect()
-        edges = spark.read.parquet("edges.parquet").collect()
+        # Read data from Parquet files
+        vertices = self.spark.read.parquet("vertices.parquet").collect()
+        edges = self.spark.read.parquet("edges.parquet").collect()
 
         for vertex in vertices:
             self.graph.add_node(vertex['id'], name=vertex['name'])
@@ -50,6 +57,7 @@ class AStarGraph:
         return []
 
 # Example usage
-graph = AStarGraph()
-path = graph.astar('start_node_id', 'end_node_id')
-print("Best path:", path)
+if __name__ == "__main__":
+    graph = AStarGraph()
+    path = graph.astar('start_node_id', 'end_node_id')
+    print("Best path:", path)
