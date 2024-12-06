@@ -1,3 +1,4 @@
+
 certifi==2024.8.30
 charset-normalizer==3.4.0
 idna==3.10
@@ -15,3 +16,26 @@ graphframes
 pyspark
 flask
 networkx
+blinker            1.9.0
+certifi            2024.8.30
+charset-normalizer 3.4.0
+click              8.1.7
+Flask              3.1.0
+graphframes        0.6
+idna               3.10
+itsdangerous       2.2.0
+Jinja2             3.1.4
+kafka-python       2.0.2
+MarkupSafe         3.0.2
+networkx           3.4.2
+nose               1.3.7
+numpy              2.1.3
+pip                24.2
+py4j               0.10.9.7
+pyspark            3.5.3
+requests           2.32.3
+setuptools         75.1.0
+six                1.17.0
+urllib3            2.2.3
+Werkzeug           3.1.3
+wheel              0.44.0
