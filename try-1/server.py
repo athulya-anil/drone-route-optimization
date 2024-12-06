@@ -1,35 +1,35 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_from_directory
 from route_calculation import AStarGraph
+from real_time_processing import update_graph_data
 
-app = Flask(__name__)
+app = Flask(__name__, static_url_path='', static_folder='.')
+
+# Initialize the graph
 graph = AStarGraph()
-
-from flask import Flask, request, jsonify, render_template
-
-app = Flask(__name__, template_folder='.')  # Set template folder to current directory
+graph.load_graph()
 
 @app.route('/')
-def home():
-    return render_template('ui.html')
-
-@app.route('/update_graph', methods=['POST'])
-def update_graph():
-    updated_edges = request.json['edges']
-    # Logic to update the graph with new edges
-    for edge in updated_edges:
-        graph.graph.add_edge(edge['src'], edge['dst'], weight=edge['weight'])
-    return jsonify({"status": "graph updated"})
+def serve_ui():
+    # Serve the UI HTML file
+    return send_from_directory('.', 'ui.html')
 
 @app.route('/get_route', methods=['GET'])
 def get_route():
     start = request.args.get('start')
     end = request.args.get('end')
-    print("start and end is hereeee: ",start,end)
+    if not start or not end:
+        return jsonify({"error": "Both start and end points are required"}), 400
     path = graph.astar(start, end)
-    
-    return jsonify({"path": path})
+    if not path:
+        return jsonify({"error": "No route found"}), 404
+    result = [{"id": node, "latitude": graph.graph.nodes[node]['latitude'], "longitude": graph.graph.nodes[node]['longitude']} for node in path]
+    return jsonify({"path": result})
 
-
+@app.route('/update_graph', methods=['POST'])
+def update_graph():
+    data = request.get_json()
+    update_graph_data(graph.graph, data)
+    return jsonify({"status": "Graph updated successfully"})
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=8000)

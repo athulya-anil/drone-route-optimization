@@ -1,31 +1,24 @@
 import networkx as nx
 import heapq
-from pyspark.sql import SparkSession
+import math
+import requests
 
 class AStarGraph:
     def __init__(self):
-        # Create a SparkSession
-        self.spark = SparkSession.builder \
-            .appName("AStarGraph") \
-            .getOrCreate()
-
         self.graph = nx.DiGraph()
-        self.load_graph()
 
     def load_graph(self):
-        # Read data from Parquet files
-        vertices = self.spark.read.parquet("vertices.parquet").collect()
-        edges = self.spark.read.parquet("edges.parquet").collect()
+        self.graph.add_node("A", latitude=0, longitude=0)
+        self.graph.add_node("B", latitude=1, longitude=1)
+        self.graph.add_edge("A", "B", weight=1)
+    # def load_graph(self):
+    #     response = requests.get('https://run.mocky.io/v3/4329eee9-1975-4dc9-a655-d0576c4965a4')
+    #     return response.json()
 
-        for vertex in vertices:
-            self.graph.add_node(vertex['id'], name=vertex['name'])
-
-        for edge in edges:
-            self.graph.add_edge(edge['src'], edge['dst'], weight=edge['weight'])
-
-    def heuristic(self, a, b):
-        # Implement a heuristic function, e.g., Euclidean distance
-        return 0
+    def heuristic(self, node_a, node_b):
+        lat_a, lon_a = self.graph.nodes[node_a]['latitude'], self.graph.nodes[node_a]['longitude']
+        lat_b, lon_b = self.graph.nodes[node_b]['latitude'], self.graph.nodes[node_b]['longitude']
+        return math.sqrt((lat_a - lat_b) ** 2 + (lon_a - lon_b) ** 2)
 
     def astar(self, start, goal):
         open_set = []
@@ -37,13 +30,14 @@ class AStarGraph:
         f_score[start] = self.heuristic(start, goal)
 
         while open_set:
-            current = heapq.heappop(open_set)[1]
+            _, current = heapq.heappop(open_set)
 
             if current == goal:
                 path = []
                 while current in came_from:
                     path.append(current)
                     current = came_from[current]
+                path.append(current)
                 return path[::-1]
 
             for neighbor in self.graph.neighbors(current):
@@ -55,9 +49,3 @@ class AStarGraph:
                     heapq.heappush(open_set, (f_score[neighbor], neighbor))
 
         return []
-
-# Example usage
-if __name__ == "__main__":
-    graph = AStarGraph()
-    path = graph.astar('start_node_id', 'end_node_id')
-    print("Best path:", path)
