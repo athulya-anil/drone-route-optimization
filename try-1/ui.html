@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Drone Delivery Routes</title>
+    <!-- Include Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        h1 {
+            text-align: center;
+            margin: 10px 0;
+        }
+
+        #controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin: 10px auto;
+            max-width: 800px;
+        }
+
+        #controls input {
+            padding: 8px;
+            width: 200px;
+        }
+
+        #controls button {
+            padding: 8px 16px;
+            cursor: pointer;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 4px;
+        }
+
+        #controls button:hover {
+            background-color: #0056b3;
+        }
+
+        #map {
+            height: 600px;
+            margin: 0 auto;
+            width: 90%;
+            border: 1px solid #ccc;
+        }
+    </style>
+</head>
+<body>
+    <h1>Drone Delivery Routes</h1>
+
+    <!-- Input controls -->
+    <div id="controls">
+        <input type="text" id="start" placeholder="Start Point ID">
+        <input type="text" id="end" placeholder="End Point ID">
+        <button onclick="getRoute()">Find Route</button>
+    </div>
+
+    <!-- Map container -->
+    <div id="map"></div>
+
+    <!-- Include Leaflet JS -->
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script>
+        // Initialize the map
+        const map = L.map('map').setView([42.3601, -71.0589], 8);
+
+        // Add OpenStreetMap tiles
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+        }).addTo(map);
+
+        let routeLayer;
+        let markers = [];
+
+        // Fetch and display the route
+        function getRoute() {
+        let start = document.getElementById('start').value.trim().toLowerCase();
+        let end = document.getElementById('end').value.trim().toLowerCase();
+
+        if (!start || !end) {
+            alert('Please enter both start and end point IDs.');
+            return;
+        }
+
+        // Clear previous route and markers
+        if (routeLayer) map.removeLayer(routeLayer);
+        markers.forEach(marker => map.removeLayer(marker));
+        markers = [];
+
+        fetch(`/get_route?start=${start}&end=${end}`)
+            .then((response) => response.json())
+            .then((data) => {
+                if (data.error) {
+                    alert(data.error);
+                    return;
+                }
+
+                // Map the node IDs to coordinates
+                const latlngs = data.path.map(nodeId => {
+                    const node = data.nodes.find(n => n.id === nodeId); // Find the node data
+                    return [node.latitude, node.longitude];
+                });
+
+                // Determine route color and weight label
+                const routeColor = data.artificial ? 'red' : 'blue';
+                const weightLabel = data.artificial
+                    ? `Weight: ${data.weights[0]} (artificial)`
+                    : `Total Weight: ${data.weights.reduce((a, b) => a + b, 0)}`;
+
+                // Add weight label at the midpoint
+                const midLat = (latlngs[0][0] + latlngs[latlngs.length - 1][0]) / 2;
+                const midLng = (latlngs[0][1] + latlngs[latlngs.length - 1][1]) / 2;
+
+                const marker = L.marker([midLat, midLng])
+                    .bindTooltip(weightLabel, { permanent: true })
+                    .addTo(map);
+                markers.push(marker);
+
+                // Draw the route
+                routeLayer = L.polyline(latlngs, { color: routeColor, weight: 5 }).addTo(map);
+                map.fitBounds(routeLayer.getBounds());
+            })
+            .catch((error) => console.error('Error fetching route:', error));
+    }
+
+
+    </script>
+</body>
+</html>
