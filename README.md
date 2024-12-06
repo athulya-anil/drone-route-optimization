@@ -28,7 +28,7 @@ This project implements a system for optimizing delivery drone routes using real
 2. Unzip the archive and start the Flink cluster:
    
 ### **c. Python Libraries**
-Install the required Python packages: pip install kafka-python apache-flink folium requests
+Install the required Python packages: pip install -r requirements.txt
 
 ---
 
