@@ -7,24 +7,74 @@
 </head>
 <body>
     <h1>Drone Delivery Routes</h1>
-    <div id="map" style="height: 600px;"></div>
+
+    <!-- Input boxes for start and end points -->
+    <div>
+        <label for="start">Start Point ID:</label>
+        <input type="text" id="start" placeholder="Enter start point ID">
+        <label for="end">End Point ID:</label>
+        <input type="text" id="end" placeholder="Enter end point ID">
+        <button onclick="getRoute()">Get Route</button>
+    </div>
+
+    <div id="map" style="height: 600px; margin-top: 20px;"></div>
+
     <script>
         var map = L.map('map').setView([45.5236, -122.6750], 13);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 19,
         }).addTo(map);
 
+        var markers = []; // Store marker references to refresh map dynamically
+
+        // Function to update the map with dynamic traffic and weather data
         function updateRoute() {
-            fetch('/get_route?start=start_node_id&end=end_node_id')
+            fetch('/update_route') // API for fetching traffic/weather updates
                 .then(response => response.json())
                 .then(data => {
-                    var path = data.path;
-                    var latlngs = path.map(node => [node.lat, node.lon]);
-                    L.polyline(latlngs, {color: 'blue'}).addTo(map);
-                });
+                    // Clear existing markers
+                    markers.forEach(marker => map.removeLayer(marker));
+                    markers = [];
+
+                    // Add updated markers to the map
+                    data.markers.forEach(function(markerData) {
+                        var marker = L.marker([markerData.lat, markerData.lon]).addTo(map);
+                        marker.bindPopup("ID: " + markerData.id);
+                        markers.push(marker);
+                    });
+                })
+                .catch(error => console.error("Error updating map:", error));
         }
 
-        // Call updateRoute periodically
+        // Function to fetch and display the route for given start and end IDs
+        function getRoute() {
+            var start = document.getElementById("start").value;
+            var end = document.getElementById("end").value;
+
+            if (!start || !end) {
+                alert("Please enter both start and end point IDs.");
+                return;
+            }
+
+            fetch(`/get_route?start=${start}&end=${end}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.path.length === 0) {
+                        alert("No route found. Please try different IDs.");
+                        return;
+                    }
+
+                    // Draw the route on the map
+                    var latlngs = data.path.map(node => [node.lat, node.lon]);
+                    L.polyline(latlngs, { color: 'blue' }).addTo(map);
+
+                    // Fit map to the route
+                    map.fitBounds(latlngs);
+                })
+                .catch(error => console.error("Error fetching route:", error));
+        }
+
+        // Call updateRoute every 2 seconds to refresh the map dynamically
         setInterval(updateRoute, 2000);
     </script>
 </body>

@@ -36,6 +36,7 @@ edges = spark.createDataFrame(
 
 # Create GraphFrame
 graph = GraphFrame(vertices, edges)
+print("\n\ngraphhhh:\n\n",graph)
 graph.cache()
 
 # Save graph to storage for later use
