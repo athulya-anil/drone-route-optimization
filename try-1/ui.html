@@ -70,7 +70,7 @@
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <script>
         // Initialize the map
-        const map = L.map('map').setView([0, 0], 2);
+        const map = L.map('map').setView([42.3601, -71.0589], 8);
 
         // Add OpenStreetMap tiles
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -78,37 +78,60 @@
         }).addTo(map);
 
         let routeLayer;
+        let markers = [];
 
         // Fetch and display the route
         function getRoute() {
-            const start = document.getElementById('start').value;
-            const end = document.getElementById('end').value;
+        let start = document.getElementById('start').value.trim().toLowerCase();
+        let end = document.getElementById('end').value.trim().toLowerCase();
 
-            if (!start || !end) {
-                alert('Please enter both start and end point IDs.');
-                return;
-            }
-
-            fetch(`/get_route?start=${start}&end=${end}`)
-                .then((response) => response.json())
-                .then((data) => {
-                    if (routeLayer) map.removeLayer(routeLayer);
-                    const latlngs = data.path.map((node) => [node.latitude, node.longitude]);
-                    routeLayer = L.polyline(latlngs, { color: 'blue' }).addTo(map);
-                    map.fitBounds(routeLayer.getBounds());
-                })
-                .catch((error) => console.error('Error fetching route:', error));
+        if (!start || !end) {
+            alert('Please enter both start and end point IDs.');
+            return;
         }
 
-        // Optionally fetch and render updates from the server periodically
-        setInterval(() => {
-            fetch('/update_graph')
-                .then(response => response.json())
-                .then(data => {
-                    console.log("Graph updated:", data);
-                })
-                .catch(console.error);
-        }, 5000); // Every 5 seconds
+        // Clear previous route and markers
+        if (routeLayer) map.removeLayer(routeLayer);
+        markers.forEach(marker => map.removeLayer(marker));
+        markers = [];
+
+        fetch(`/get_route?start=${start}&end=${end}`)
+            .then((response) => response.json())
+            .then((data) => {
+                if (data.error) {
+                    alert(data.error);
+                    return;
+                }
+
+                // Map the node IDs to coordinates
+                const latlngs = data.path.map(nodeId => {
+                    const node = data.nodes.find(n => n.id === nodeId); // Find the node data
+                    return [node.latitude, node.longitude];
+                });
+
+                // Determine route color and weight label
+                const routeColor = data.artificial ? 'red' : 'blue';
+                const weightLabel = data.artificial
+                    ? `Weight: ${data.weights[0]} (artificial)`
+                    : `Total Weight: ${data.weights.reduce((a, b) => a + b, 0)}`;
+
+                // Add weight label at the midpoint
+                const midLat = (latlngs[0][0] + latlngs[latlngs.length - 1][0]) / 2;
+                const midLng = (latlngs[0][1] + latlngs[latlngs.length - 1][1]) / 2;
+
+                const marker = L.marker([midLat, midLng])
+                    .bindTooltip(weightLabel, { permanent: true })
+                    .addTo(map);
+                markers.push(marker);
+
+                // Draw the route
+                routeLayer = L.polyline(latlngs, { color: routeColor, weight: 5 }).addTo(map);
+                map.fitBounds(routeLayer.getBounds());
+            })
+            .catch((error) => console.error('Error fetching route:', error));
+    }
+
+
     </script>
 </body>
 </html>

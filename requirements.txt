@@ -11,3 +11,7 @@ py4j==0.10.9.7
 pyspark==3.5.3
 setuptools==75.1.0
 wheel==0.44.0
+graphframes
+pyspark
+flask
+networkx

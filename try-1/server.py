@@ -15,15 +15,32 @@ def serve_ui():
 
 @app.route('/get_route', methods=['GET'])
 def get_route():
-    start = request.args.get('start')
-    end = request.args.get('end')
+    start = request.args.get('start', '').lower()
+    end = request.args.get('end', '').lower()
+
     if not start or not end:
-        return jsonify({"error": "Both start and end points are required"}), 400
-    path = graph.astar(start, end)
+        return jsonify({"error": "Start and end points are required"}), 400
+
+    try:
+        path, weights, artificial = graph.astar_with_intermediates(start, end)
+    except KeyError as e:
+        return jsonify({"error": f"Node {str(e)} not found in graph"}), 404
+
     if not path:
         return jsonify({"error": "No route found"}), 404
-    result = [{"id": node, "latitude": graph.graph.nodes[node]['latitude'], "longitude": graph.graph.nodes[node]['longitude']} for node in path]
-    return jsonify({"path": result})
+
+    nodes_data = [{"id": node,
+                   "latitude": graph.graph.nodes[node]["latitude"],
+                   "longitude": graph.graph.nodes[node]["longitude"]}
+                  for node in path]
+
+    return jsonify({
+        "path": path,
+        "weights": weights,
+        "artificial": artificial,
+        "nodes": nodes_data
+    })
+
 
 @app.route('/update_graph', methods=['POST'])
 def update_graph():
