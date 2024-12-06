@@ -8,9 +8,15 @@ class AStarGraph:
         self.graph = nx.DiGraph()
 
     def load_graph(self):
-        self.graph.add_node("A", latitude=0, longitude=0)
-        self.graph.add_node("B", latitude=1, longitude=1)
-        self.graph.add_edge("A", "B", weight=1)
+        response = requests.get('https://run.mocky.io/v3/270e1a2a-b043-4dee-8baa-356671618a5c')
+        mapdata = response.json()
+        for nodes in mapdata["nodes"]:
+            self.graph.add_node(nodes['id'],latitude = nodes['latitude'], longitude = nodes['longitude'])
+        for edges in mapdata["edges"]:
+            self.graph.add_edge(edges['src'], edges['dst'], weight=edges['weight'])
+        # self.graph.add_node("A", latitude=0, longitude=0)
+        # self.graph.add_node("B", latitude=1, longitude=1)
+        
     # def load_graph(self):
     #     response = requests.get('https://run.mocky.io/v3/4329eee9-1975-4dc9-a655-d0576c4965a4')
     #     return response.json()
