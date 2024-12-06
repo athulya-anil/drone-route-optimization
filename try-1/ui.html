@@ -80,57 +80,71 @@
         let routeLayer;
         let markers = [];
 
-        // Fetch and display the route
         function getRoute() {
-        let start = document.getElementById('start').value.trim().toLowerCase();
-        let end = document.getElementById('end').value.trim().toLowerCase();
+    let start = document.getElementById('start').value.trim().toLowerCase();
+    let end = document.getElementById('end').value.trim().toLowerCase();
 
-        if (!start || !end) {
-            alert('Please enter both start and end point IDs.');
-            return;
-        }
-
-        // Clear previous route and markers
-        if (routeLayer) map.removeLayer(routeLayer);
-        markers.forEach(marker => map.removeLayer(marker));
-        markers = [];
-
-        fetch(`/get_route?start=${start}&end=${end}`)
-            .then((response) => response.json())
-            .then((data) => {
-                if (data.error) {
-                    alert(data.error);
-                    return;
-                }
-
-                // Map the node IDs to coordinates
-                const latlngs = data.path.map(nodeId => {
-                    const node = data.nodes.find(n => n.id === nodeId); // Find the node data
-                    return [node.latitude, node.longitude];
-                });
-
-                // Determine route color and weight label
-                const routeColor = data.artificial ? 'red' : 'blue';
-                const weightLabel = data.artificial
-                    ? `Weight: ${data.weights[0]} (artificial)`
-                    : `Total Weight: ${data.weights.reduce((a, b) => a + b, 0)}`;
-
-                // Add weight label at the midpoint
-                const midLat = (latlngs[0][0] + latlngs[latlngs.length - 1][0]) / 2;
-                const midLng = (latlngs[0][1] + latlngs[latlngs.length - 1][1]) / 2;
-
-                const marker = L.marker([midLat, midLng])
-                    .bindTooltip(weightLabel, { permanent: true })
-                    .addTo(map);
-                markers.push(marker);
-
-                // Draw the route
-                routeLayer = L.polyline(latlngs, { color: routeColor, weight: 5 }).addTo(map);
-                map.fitBounds(routeLayer.getBounds());
-            })
-            .catch((error) => console.error('Error fetching route:', error));
+    if (!start || !end) {
+        alert('Please enter both start and end point IDs.');
+        return;
     }
 
+    // Clear previous route and markers
+    if (routeLayer) map.removeLayer(routeLayer);
+    markers.forEach(marker => map.removeLayer(marker));
+    markers = [];
+
+    fetch(`/get_route?start=${start}&end=${end}`)
+        .then((response) => response.json())
+        .then((data) => {
+            if (data.error) {
+                alert(data.error);
+                return;
+            }
+            // console.log(response.path)
+            // Map the node IDs to coordinates
+            const latlngs = data.path.map(nodeId => {
+                const node = data.nodes.find(n => n.id === nodeId);
+                
+                return [node.latitude, node.longitude];
+            });
+
+            // Add markers for each node with tooltips
+            data.nodes.forEach(node => {
+                const marker = L.marker([node.latitude, node.longitude]);
+                marker.addTo(map);
+                markers.push(marker);
+
+                // Display weather and air quality in tooltips
+                const tooltipContent = `
+                    <b>${node.id.toUpperCase()}</b><br>
+                    Weather: ${node.weather}<br>
+                    Air Quality: ${node.air_quality}
+                `;
+                marker.bindTooltip(tooltipContent, { permanent: false });
+            });
+
+            // Determine route color and weight label
+            const routeColor = data.artificial ? 'red' : 'blue';
+            const weightLabel = data.artificial
+                ? `Weight: ${data.weights[0]} (artificial)`
+                : `Total Weight: ${data.weights.reduce((a, b) => a + b, 0)}`;
+
+            // Add weight label at the midpoint of the route
+            const midLat = (latlngs[0][0] + latlngs[latlngs.length - 1][0]) / 2;
+            const midLng = (latlngs[0][1] + latlngs[latlngs.length - 1][1]) / 2;
+
+            const labelMarker = L.marker([midLat, midLng])
+                .bindTooltip(weightLabel, { permanent: true })
+                .addTo(map);
+            markers.push(labelMarker);
+
+            // Draw the route
+            routeLayer = L.polyline(latlngs, { color: routeColor, weight: 5 }).addTo(map);
+            map.fitBounds(routeLayer.getBounds());
+        })
+        .catch((error) => console.error('Error fetching route:', error));
+}
 
     </script>
 </body>
