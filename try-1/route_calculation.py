@@ -8,10 +8,10 @@ class AStarGraph:
         self.graph = nx.DiGraph()
 
     def load_graph(self):
-        response = requests.get('https://run.mocky.io/v3/270e1a2a-b043-4dee-8baa-356671618a5c')
+        response = requests.get('https://run.mocky.io/v3/d94e5e58-370a-4457-8cd5-63922b308ac0')
         mapdata = response.json()
         for nodes in mapdata["nodes"]:
-            self.graph.add_node(nodes['id'].lower(),latitude = nodes['latitude'], longitude = nodes['longitude'])
+            self.graph.add_node(nodes['id'].lower(),latitude = nodes['latitude'], longitude = nodes['longitude'],weather = nodes["weather"],air_space = nodes["air_space"],weather_value = nodes["weather_value"],air_space_value = nodes["air_space_value"])
         for edges in mapdata["edges"]:
             self.graph.add_edge(edges['src'].lower(), edges['dst'].lower(), weight=edges['weight'])
         # self.graph.add_node("A", latitude=0, longitude=0)
@@ -62,16 +62,19 @@ class AStarGraph:
 import networkx as nx
 import heapq
 import math
-
+import six
+import sys
+sys.modules['kafka.vendor.six.moves'] = six.moves
 class AStarGraph:
     def __init__(self):
         self.graph = nx.DiGraph()
 
     def load_graph(self):
-        response = requests.get('https://run.mocky.io/v3/270e1a2a-b043-4dee-8baa-356671618a5c')
+        response = requests.get('https://run.mocky.io/v3/d94e5e58-370a-4457-8cd5-63922b308ac0')
         mapdata = response.json()
         for nodes in mapdata["nodes"]:
-            self.graph.add_node(nodes['id'].lower(),latitude = nodes['latitude'], longitude = nodes['longitude'])
+            self.graph.add_node(nodes['id'].lower(),latitude = nodes['latitude'], longitude = nodes['longitude'],weather = nodes["weather"],air_space = nodes["air_space"],weather_value = nodes["weather_value"],air_space_value = nodes["air_space_value"])
+            # self.graph.add_node(nodes['id'].lower(),latitude = nodes['latitude'], longitude = nodes['longitude'])
         for edges in mapdata["edges"]:
             self.graph.add_edge(edges['src'].lower(), edges['dst'].lower(), weight=edges['weight'])
         print("Graph successfully loaded with nodes and edges.")
