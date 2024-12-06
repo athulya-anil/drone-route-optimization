@@ -73,21 +73,43 @@ python visualize_routes.py
 
 ## **Dependencies**
 
-### **Libraries and Packages**
-- **Python**:
-  - `kafka-python`: For Kafka integration.
-  - `apache-flink`: For stream processing.
-  - `folium`: For map-based visualization.
-  - `requests`: For API calls.
-- **Java/Scala**:
-  - Apache Flink (1.20.0+)
-  - GraphX (for route optimization)
+### **Python Libraries**
+The following libraries and versions are required to run this project:
+
+- **blinker**: 1.9.0
+- **certifi**: 2024.8.30
+- **charset-normalizer**: 3.4.0
+- **click**: 8.1.7
+- **Flask**: 3.1.0
+- **graphframes**: 0.6
+- **idna**: 3.10
+- **itsdangerous**: 2.2.0
+- **Jinja2**: 3.1.4
+- **kafka-python**: 2.0.2
+- **MarkupSafe**: 3.0.2
+- **networkx**: 3.4.2
+- **nose**: 1.3.7
+- **numpy**: 2.1.3
+- **pip**: 24.2
+- **py4j**: 0.10.9.7
+- **pyspark**: 3.5.3
+- **requests**: 2.32.3
+- **setuptools**: 75.1.0
+- **six**: 1.17.0
+- **urllib3**: 2.2.3
+- **Werkzeug**: 3.1.3
+- **wheel**: 0.44.0
 
 ### **Software Versions**
+The following software versions are required for this project:
+- **Python**: 3.9+
 - **Apache Kafka**: 3.5.0+
 - **Apache Flink**: 1.20.0+
-- **Python**: 3.9+
 - **Java**: 11+
+
+### **Installation**
+To install all Python dependencies, use:
+pip install -r requirements.txt
 
 ---
 
