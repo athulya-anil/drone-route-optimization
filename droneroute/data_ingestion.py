@@ -17,14 +17,14 @@ producer = KafkaProducer(bootstrap_servers='localhost:9092', value_serializer=la
 def fetch_air_data():
 
     response = requests.get('http://localhost:8001/api/air')
-    print("air data: ",response.json())
-    return response
+    print("fetching air data")
+    return response.json()
 
 def fetch_weather_data():
 
     response = requests.get('http://localhost:8001/api/weather')
-    print("weather data: ",response.json())
-    return response
+    print("fetching weather_data")
+    return response.json()
 
 while True:
     air_data = fetch_air_data()
