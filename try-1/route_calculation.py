@@ -5,12 +5,17 @@ import requests
 import six
 import sys
 sys.modules['kafka.vendor.six.moves'] = six.moves
+
+# from logger import get_logger
+
+# logger = get_logger(__name__)
+
 class AStarGraph:
     def __init__(self):
         self.graph = nx.DiGraph()
 
     def load_graph(self):
-        print("usingggg 2222")
+
         response = requests.get('https://run.mocky.io/v3/ef703999-6d21-4b44-8c2c-3900881d2b54')
         mapdata = response.json()
         for nodes in mapdata["nodes"]:
@@ -18,7 +23,7 @@ class AStarGraph:
             # self.graph.add_node(nodes['id'].lower(),latitude = nodes['latitude'], longitude = nodes['longitude'])
         for edges in mapdata["edges"]:
             self.graph.add_edge(edges['src'].lower(), edges['dst'].lower(), weight=edges['weight'])
-        print("Graph successfully loaded with nodes and edges.")
+        # logger.info("Graph successfully loaded with nodes and edges.")
 
     def heuristic(self, node_a, node_b):
         lat_a, lon_a = self.graph.nodes[node_a]['latitude'], self.graph.nodes[node_a]['longitude']
@@ -26,7 +31,6 @@ class AStarGraph:
         return math.sqrt((lat_a - lat_b) ** 2 + (lon_a - lon_b) ** 2)
 
     def astar_with_weights(self, start, goal):
-        print("astar_with_weights: ",start,goal)
         open_set = []
         heapq.heappush(open_set, (0, start))
         came_from = {}
@@ -75,7 +79,7 @@ class AStarGraph:
 
 
     def astar_with_intermediates(self, start, goal):
-        print("astar_with_intermediates: ",start,goal)
+        
         """
         A* algorithm to find the shortest path via one or two intermediate nodes.
         If no valid path exists, return an artificial direct path with a significantly higher weight.
@@ -103,7 +107,6 @@ class AStarGraph:
             path1, weights1 = find_path(start, intermediate)
             path2, weights2 = find_path(intermediate, goal)
 
-            print("\npathsssss: ",path1,path2)
 
             if path1 and path2:
                 total_distance = sum(weights1) + sum(weights2)

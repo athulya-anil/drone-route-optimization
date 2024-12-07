@@ -6,6 +6,9 @@ from kafka import KafkaConsumer
 import json
 import threading
 import requests
+# from logger import get_logger
+
+# logger = get_logger(__name__)
 
 app = Flask(__name__, static_url_path='', static_folder='.')
 
@@ -25,32 +28,30 @@ def get_route():
     end = request.args.get('end', '').lower()
 
     if not start or not end:
+        # logger.error("Missing start or end point.")
         return jsonify({"error": "Start and end points are required"}), 400
 
     try:
         path, weights, artificial = graph.astar_with_intermediates(start, end)
     except KeyError as e:
+        # logger.exception(f"Node {e} not found in graph.")
         return jsonify({"error": f"Node {str(e)} not found in graph"}), 404
 
     if not path:
         return jsonify({"error": "No route found"}), 404
-
-    # for node in path:
-    #     print("graph: ",node,graph.graph.nodes[node])
 
     nodes_data = [
         {
             "id": node,
             "latitude": graph.graph.nodes[node]["latitude"],
             "longitude": graph.graph.nodes[node]["longitude"],
-            # "weather": graph.graph.nodes[node].get("weather"),
-            # "air_quality": graph.graph.nodes[node].get("air_quality"),
             "weather": graph.graph.nodes[node]["weather_value"],
             "air_quality": graph.graph.nodes[node]["air_space_value"],
         }
         for node in path
     ]
 
+    # logger.info("Route fetched successfully.")
     return jsonify({
         "path": path,
         "weights": weights,
@@ -61,7 +62,6 @@ def get_route():
 @app.route('/update_graph', methods=['POST'])
 def update_graph():
     data = request.get_json()
-    # print("in server.py, updating graph with: ",data)
     update_graph_data(graph.graph, data)
     return jsonify({"status": "Graph updated successfully"})
 
@@ -94,10 +94,13 @@ def kafka_listener():
         try:
             response = requests.post("http://localhost:8000/update_graph", json=payload)
             if response.status_code == 200:
-                print(f"Graph updated successfully with data")
+                # logger.exception("Graph updated successfully with data")
+                print("Graph updated successfully with data")
             else:
+                # logger.exception(f"Failed to update graph: {response.text}")
                 print(f"Failed to update graph: {response.text}")
         except requests.exceptions.RequestException as e:
+            # logger.exception(f"Error calling /update_graph: {e}")
             print(f"Error calling /update_graph: {e}")
 
 # Start the Kafka listener in a separate thread
