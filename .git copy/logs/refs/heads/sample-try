@@ -1,0 +1,7 @@
+0000000000000000000000000000000000000000 1d8a89c69d320a40ff7478879a6d260f070cd7f0 athulya anil <athulyaanil@vl965-172-31-84-216.wireless.umass.edu> 1733431147 -0500	branch: Created from refs/remotes/origin/sample-try
+1d8a89c69d320a40ff7478879a6d260f070cd7f0 07ff224da8b4bf5aabeddb37df403bbf5d288d36 athulya anil <athulyaanil@vl965-172-31-84-216.wireless.umass.edu> 1733439248 -0500	commit: generating parquet files
+07ff224da8b4bf5aabeddb37df403bbf5d288d36 aabf0aee0b344d1548cb0e060f3c2a5fcd15a1a3 athulya anil <athulyaanil@Athulyas-MacBook-Pro.local> 1733460763 -0500	commit: UI
+aabf0aee0b344d1548cb0e060f3c2a5fcd15a1a3 619813bd1ee5422e3637adfec43b82625bd7c0e8 athulya anil <athulyaanil@Athulyas-MacBook-Pro.local> 1733464255 -0500	commit: route working
+619813bd1ee5422e3637adfec43b82625bd7c0e8 2eefedccf54a646a54bc07536e543273d6d270bb athulya anil <athulyaanil@Athulyas-MacBook-Pro.local> 1733466712 -0500	commit: working basic ui
+2eefedccf54a646a54bc07536e543273d6d270bb c0914b3d838ab2513e3086085d55aaa59cff55ec athulya anil <athulyaanil@Athulyas-MacBook-Pro.local> 1733494659 -0500	pull: Fast-forward
+c0914b3d838ab2513e3086085d55aaa59cff55ec 1988cffd1872f91e49147556b5561ba6e189bf7a athulya anil <athulyaanil@Athulyas-MacBook-Pro.local> 1733494901 -0500	commit: weather and air API
