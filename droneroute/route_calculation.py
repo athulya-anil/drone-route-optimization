@@ -16,7 +16,7 @@ class AStarGraph:
 
     def load_graph(self):
 
-        response = requests.get('https://run.mocky.io/v3/ef703999-6d21-4b44-8c2c-3900881d2b54')
+        response = requests.get('https://run.mocky.io/v3/5d9cdad5-f37d-4ffb-ab5d-5fffe6388631')
         mapdata = response.json()
         for nodes in mapdata["nodes"]:
             self.graph.add_node(nodes['id'].lower(),latitude = nodes['latitude'], longitude = nodes['longitude'],weather = nodes["weather"],air_space = nodes["air_space"],weather_value = nodes["weather_value"],air_space_value = nodes["air_space_value"])
