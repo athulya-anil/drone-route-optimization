@@ -12,8 +12,8 @@ This project implements a system for optimizing delivery drone routes using real
   - Apache Kafka (Version: 3.5.0+)
   - Apache Flink (Version: 1.20.0+)
   - Python 3.9+ or Java 11+
-  - GraphX (or NetworkX for testing route optimization)
-  - Folium or OpenStreetMap for visualization
+  - NetworkX for testing route optimization
+  - OpenStreetMap for visualization
 - **API Key**:
   - Obtain an API key from [OpenWeatherMap](https://openweathermap.org/).
 
@@ -48,7 +48,10 @@ flink run -c com.example.DroneRouteOptimizer target/DroneRouteOptimizer.jar
 ### **3. Run Visualization**
 Start the visualization tool to display drone routes and updates:
 
-python visualize_routes.py
+python apis.py
+python data_ingestion.py
+python server.py 
+Follow localhost
 
 ----
                                            
