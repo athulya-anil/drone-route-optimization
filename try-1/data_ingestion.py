@@ -7,6 +7,9 @@ import json
 import time
 import requests
 import random
+# from logger import get_logger
+
+# logger = get_logger(__name__)
 
 # Kafka Producer configuration
 producer = KafkaProducer(bootstrap_servers='localhost:9092', value_serializer=lambda v: json.dumps(v).encode('utf-8'))
@@ -29,32 +32,17 @@ def fetch_air_data():
         {'id': 'Northampton', 'latitude': 42.3251, 'longitude': -72.6412},
         {'id': 'Framingham', 'latitude': 42.2793, 'longitude': -71.4162}
     ]
-    headers = {
-    "Content-Type": "application/json"
-    }
-    username = "userxyz123"
-    password = "091mYxuQCx"
 
-    # response = requests.post("https://run.mocky.io/v3/bddd16d8-7c5f-466e-9e11-75463c263bdb",auth=(username, password), headers=headers)
-    location_selection = random.randint(0,9)
+    location_selection = random.randint(0, len(locations) - 1)
     value_selection = random.randint(-3,3)
-    # print("in airrrr:",location_selection,len(locations),value_selection,len(values))
-    air_response = locations[location_selection]|{"update_air":value_selection}
-    print("air_response: ", air_response)
 
+    # logger.info("Fetching air data...")
+
+    air_response = locations[location_selection]|{"update_air":value_selection}
     return air_response
-    # return {'id': 'Worcester', 'latitude': 42.2626, 'longitude': -71.8023, 'update_air': -0.14}
 
 def fetch_weather_data():
-    # headers = {
-    # "Content-Type": "application/json"
-    # }
-    # username = "userxyz123"
-    # password = "091mYxuQCx"
 
-    # response = requests.post("https://run.mocky.io/v3/db8f7b49-3171-46dc-b06d-2ef82122a667",auth=(username, password), headers=headers)
-    # selection = random.randint(1,7)
-    # weather_response = response.json()['data'][str(selection)]
     locations = [
             {'id': 'Boston', 'latitude': 42.3601, 'longitude': -71.0589},
             {'id': 'Cambridge', 'latitude': 42.3736, 'longitude': -71.1097},
@@ -67,25 +55,21 @@ def fetch_weather_data():
             {'id': 'Northampton', 'latitude': 42.3251, 'longitude': -72.6412},
             {'id': 'Framingham', 'latitude': 42.2793, 'longitude': -71.4162}
         ] 
-    headers = {
-    "Content-Type": "application/json"
-    }
-    username = "userxyz123"
-    password = "091mYxuQCx"
 
-    # response = requests.post("https://run.mocky.io/v3/bddd16d8-7c5f-466e-9e11-75463c263bdb",auth=(username, password), headers=headers)
-    location_selection = random.randint(0,9)
+    location_selection = random.randint(0, len(locations) - 1)
     value_selection = random.randint(-3,3)
-    # print("in weatherrr:",location_selection,len(locations),value_selection,len(values))
+
+    # logger.info("Fetching weather data...")
+
     weather_response = locations[location_selection]|{"update_weather":value_selection}
-    print("weather_response: ", weather_response)
     return weather_response
-    # return {'id': 'Worcester', 'latitude': 42.2626, 'longitude': -71.8023, 'update_weather': 4.12}
 
 while True:
     air_data = fetch_air_data()
     weather_data = fetch_weather_data()
+
     producer.send('air_topic', air_data)
     producer.send('weather_topic', weather_data)
-    print("Sending air and weather data",air_data,weather_data)
+
+    # logger.info("Sent air and weather data to Kafka.")
     time.sleep(2)
