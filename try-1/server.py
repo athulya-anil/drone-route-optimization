@@ -35,8 +35,8 @@ def get_route():
     if not path:
         return jsonify({"error": "No route found"}), 404
 
-    for node in path:
-        print("graphhhhhh: ",node,graph.graph.nodes[node])
+    # for node in path:
+    #     print("graph: ",node,graph.graph.nodes[node])
 
     nodes_data = [
         {
@@ -45,8 +45,8 @@ def get_route():
             "longitude": graph.graph.nodes[node]["longitude"],
             # "weather": graph.graph.nodes[node].get("weather"),
             # "air_quality": graph.graph.nodes[node].get("air_quality"),
-            "weather": graph.graph.nodes[node]["weather"],
-            "air_quality": graph.graph.nodes[node]["air_space"],
+            "weather": graph.graph.nodes[node]["weather_value"],
+            "air_quality": graph.graph.nodes[node]["air_space_value"],
         }
         for node in path
     ]
@@ -61,6 +61,7 @@ def get_route():
 @app.route('/update_graph', methods=['POST'])
 def update_graph():
     data = request.get_json()
+    # print("in server.py, updating graph with: ",data)
     update_graph_data(graph.graph, data)
     return jsonify({"status": "Graph updated successfully"})
 
@@ -79,12 +80,13 @@ def kafka_listener():
     
         if message.topic == 'weather_topic':
             payload = {
-                "edges": [{"src": data['id'], "dst": data['id'], "weight": data['update_weather']}],
+                # "edges": [{"src": data['id'], "dst": data['id'], "weight": data['update_weather']}],
+                "id":data['id'],
                 "update_weather": data['update_weather']
             }
         elif message.topic == 'air_topic':
             payload = {
-                "edges": [{"src": data['id'], "dst": data['id'], "weight": data['update_air']}],
+                "id":data['id'],
                 "update_air": data['update_air']
             }
 
@@ -92,7 +94,7 @@ def kafka_listener():
         try:
             response = requests.post("http://localhost:8000/update_graph", json=payload)
             if response.status_code == 200:
-                print(f"Graph updated successfully with data: {data}")
+                print(f"Graph updated successfully with data")
             else:
                 print(f"Failed to update graph: {response.text}")
         except requests.exceptions.RequestException as e:

@@ -125,9 +125,9 @@
             });
 
             // Determine route color and weight label
-            const routeColor = data.artificial ? 'red' : 'blue';
+            const routeColor = data.artificial ? 'blue' : 'blue';
             const weightLabel = data.artificial
-                ? `Weight: ${data.weights[0]} (artificial)`
+                ? `Weight: ${data.weights[0]}`
                 : `Total Weight: ${data.weights.reduce((a, b) => a + b, 0)}`;
 
             // Add weight label at the midpoint of the route
